@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using AutoFix.Api.Data;
+using AutoFix.Api.Middlewares;
 using AutoFix.Api.Models;
 using AutoFix.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -103,6 +104,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+// Orden obligatorio: 1) Correlation ID -> 2) Excepciones -> 3) Registro de solicitudes -> 4) Autenticación -> 5) Autorización -> 6) Controladores
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
