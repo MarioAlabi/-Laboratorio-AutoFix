@@ -1,0 +1,67 @@
+@model MovimientoCrearVm
+@{
+    ViewData["Title"] = "Registrar Movimiento";
+    var repuestos = ViewBag.Repuestos as List<RepuestoVm> ?? [];
+    var ordenes = ViewBag.Ordenes as List<OrdenVm> ?? [];
+}
+
+<h2 class="mb-3">Registrar Entrada o Salida de Repuesto</h2>
+<div class="card border-0 shadow-sm p-4 col-md-7">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="Tipo" class="form-label">Tipo de movimiento</label>
+            <select asp-for="Tipo" class="form-select">
+                <option value="Salida">Salida (Usar en reparación)</option>
+                @if (Api.TienePermiso("Inventario.Gestionar"))
+                {
+                    <option value="Entrada">Entrada (Ingreso a bodega)</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="RepuestoId" class="form-label">Repuesto</label>
+            <select asp-for="RepuestoId" id="RepuestoSelect" class="form-select" onchange="syncRepVersion()">
+                <option value="">-- Seleccione repuesto --</option>
+                @foreach (var r in repuestos)
+                {
+                    <option value="@r.Id" data-version="@r.Version">@r.Codigo — @r.Nombre (Disp: @r.Existencias)</option>
+                }
+            </select>
+            <input asp-for="Version" id="RepVersionInput" type="hidden" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Cantidad" class="form-label">Cantidad</label>
+                <input asp-for="Cantidad" type="number" min="1" class="form-control" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="OrdenReparacionId" class="form-label">Orden (opcional en salida)</label>
+                <select asp-for="OrdenReparacionId" class="form-select">
+                    <option value="">-- Sin orden específica --</option>
+                    @foreach (var o in ordenes)
+                    {
+                        <option value="@o.Id">@o.NumeroOrden (@o.VehiculoPlaca)</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Observacion" class="form-label">Observación</label>
+            <input asp-for="Observacion" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-danger">Confirmar Movimiento</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function syncRepVersion() {
+            const sel = document.getElementById('RepuestoSelect');
+            const opt = sel.options[sel.selectedIndex];
+            document.getElementById('RepVersionInput').value = opt ? (opt.getAttribute('data-version') || '') : '';
+        }
+        syncRepVersion();
+    </script>
+}

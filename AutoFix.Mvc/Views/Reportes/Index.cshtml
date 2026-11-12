@@ -1,0 +1,136 @@
+@model ReporteOperacionesVm
+@{
+    ViewData["Title"] = "Reportes y Auditoría";
+    var logs = ViewBag.Logs as List<LogRegistroVm> ?? [];
+    int? codigoFiltro = ViewBag.CodigoHttp;
+    string? usuarioFiltro = ViewBag.Usuario;
+    string? corrFiltro = ViewBag.CorrelationId;
+}
+
+<h2 class="mb-3">Reportes Operativos y Logs de Auditoría</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="small text-muted">Total Órdenes</div>
+            <h3 class="mb-0">@Model.TotalOrdenes</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="small text-muted">Presupuestos Aprobados</div>
+            <h3 class="mb-0">@Model.PresupuestosAprobados / @Model.TotalPresupuestos</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="small text-muted">Monto Total Aprobado</div>
+            <h3 class="mb-0 text-success">$@Model.MontoTotalAprobado.ToString("F2")</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="small text-muted">Repuestos en Alerta</div>
+            <h3 class="mb-0 text-danger">@Model.RepuestosEnAlerta.Count</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-3">
+            <h5>Carga por Mecánico</h5>
+            <table class="table table-sm mb-0">
+                <thead><tr><th>Mecánico</th><th>Especialidad</th><th>Asignaciones Activas</th></tr></thead>
+                <tbody>
+                    @foreach (var m in Model.CargaMecanicos)
+                    {
+                        <tr>
+                            <td>@m.NombreCompleto</td>
+                            <td>@m.Especialidad</td>
+                            <td><span class="badge bg-primary">@m.AsignacionesActivas</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-3">
+            <h5>Alertas de Stock Mínimo</h5>
+            @if (!Model.RepuestosEnAlerta.Any())
+            {
+                <p class="text-muted mb-0">Todos los repuestos tienen existencias saludables.</p>
+            }
+            else
+            {
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Código</th><th>Repuesto</th><th>Existencias / Mín.</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in Model.RepuestosEnAlerta)
+                        {
+                            <tr>
+                                <td>@r.Codigo</td>
+                                <td>@r.Nombre</td>
+                                <td><span class="badge bg-danger">@r.Existencias / @r.StockMinimo</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Logs de Auditoría (Middlewares + Correlation ID)</h5>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-2">
+            <input type="number" name="codigoHttp" value="@codigoFiltro" class="form-control form-control-sm" placeholder="Código HTTP (ej. 409)" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="usuario" value="@usuarioFiltro" class="form-control form-control-sm" placeholder="Usuario..." />
+        </div>
+        <div class="col-md-4">
+            <input type="text" name="correlationId" value="@corrFiltro" class="form-control form-control-sm" placeholder="Correlation ID..." />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-sm btn-dark">Filtrar Logs</button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0 small">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Usuario</th>
+                    <th>Método y Endpoint</th>
+                    <th>Código</th>
+                    <th>Duración</th>
+                    <th>Correlation ID</th>
+                    <th>Excepción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var l in logs)
+                {
+                    var badgeCls = l.CodigoHttp >= 500 ? "bg-danger" : (l.CodigoHttp >= 400 ? "bg-warning text-dark" : "bg-success");
+                    <tr>
+                        <td>@l.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@l.Usuario</td>
+                        <td><code>@l.MetodoHttp @l.Endpoint</code></td>
+                        <td><span class="badge @badgeCls">@l.CodigoHttp</span></td>
+                        <td>@l.DuracionMs ms</td>
+                        <td><code>@l.CorrelationId</code></td>
+                        <td class="text-danger">@l.Excepcion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
