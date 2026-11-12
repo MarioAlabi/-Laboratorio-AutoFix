@@ -26,34 +26,14 @@ public class MecanicosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<MecanicoDto>>> GetAll()
     {
-        var list = await _db.Mecanicos
+        var mecanicos = await _db.Mecanicos
             .Include(m => m.Asignaciones.Where(a => a.Activa))
                 .ThenInclude(a => a.OrdenReparacion)
             .AsNoTracking()
             .OrderBy(m => m.NombreCompleto)
-            .Select(m => new MecanicoDto
-            {
-                Id = m.Id,
-                NombreCompleto = m.NombreCompleto,
-                Especialidad = m.Especialidad,
-                Telefono = m.Telefono,
-                Email = m.Email,
-                Activo = m.Activo,
-                Version = m.Version,
-                Asignaciones = m.Asignaciones.Select(a => new AsignacionResumenDto
-                {
-                    Id = a.Id,
-                    OrdenReparacionId = a.OrdenReparacionId,
-                    NumeroOrden = a.OrdenReparacion.NumeroOrden,
-                    MecanicoId = a.MecanicoId,
-                    MecanicoNombre = m.NombreCompleto,
-                    FechaInicio = a.FechaInicio,
-                    FechaFin = a.FechaFin,
-                    Activa = a.Activa
-                }).OrderBy(a => a.FechaInicio).ToList()
-            }).ToListAsync();
+            .ToListAsync();
 
-        return Ok(list);
+        return Ok(mecanicos.Select(MapToDto).ToList());
     }
 
     [HttpGet("{id:int}")]
@@ -66,16 +46,21 @@ public class MecanicosController : ControllerBase
             .FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new NotFoundException($"No existe el mecánico con Id {id}.");
 
-        return Ok(new MecanicoDto
-        {
-            Id = m.Id,
-            NombreCompleto = m.NombreCompleto,
-            Especialidad = m.Especialidad,
-            Telefono = m.Telefono,
-            Email = m.Email,
-            Activo = m.Activo,
-            Version = m.Version,
-            Asignaciones = m.Asignaciones.Select(a => new AsignacionResumenDto
+        return Ok(MapToDto(m));
+    }
+
+    private static MecanicoDto MapToDto(Mecanico m) => new()
+    {
+        Id = m.Id,
+        NombreCompleto = m.NombreCompleto,
+        Especialidad = m.Especialidad,
+        Telefono = m.Telefono,
+        Email = m.Email,
+        Activo = m.Activo,
+        Version = m.Version,
+        Asignaciones = m.Asignaciones
+            .OrderBy(a => a.FechaInicio)
+            .Select(a => new AsignacionResumenDto
             {
                 Id = a.Id,
                 OrdenReparacionId = a.OrdenReparacionId,
@@ -85,9 +70,8 @@ public class MecanicosController : ControllerBase
                 FechaInicio = a.FechaInicio,
                 FechaFin = a.FechaFin,
                 Activa = a.Activa
-            }).OrderBy(a => a.FechaInicio).ToList()
-        });
-    }
+            }).ToList()
+    };
 
     [HttpPost]
     [Authorize(Roles = $"{RolesSistema.Administrador},{RolesSistema.Supervisor}")]

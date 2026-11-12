@@ -101,3 +101,20 @@ Abrir dos terminales en la raíz de la solución (o ejecutar ambos proyectos des
 Los resultados detallados de ejecución de las **12 pruebas obligatorias** (incluyendo las pruebas de concurrencia simultánea en Escenarios A y B, rechazo de imágenes inválidas, respuestas `401`/`403`/`409` y consulta de logs con `Correlation ID`) se encuentran documentados en:
 
 - [evidencias/reporte_12_pruebas.md](evidencias/reporte_12_pruebas.md)
+
+### Capturas de Demostración
+
+| Evidencia | Caso demostrado |
+| :--- | :--- |
+| [01_login_mvc.png](evidencias/01_login_mvc.png) | Inicio de sesión JWT en MVC con usuarios de prueba |
+| [02_dashboard_mvc.png](evidencias/02_dashboard_mvc.png) | Dashboard operativo con resumen de órdenes, alertas y claims JWT |
+| [03_clientes_2_vehiculos_mvc.png](evidencias/03_clientes_2_vehiculos_mvc.png) | Prueba 1: Cliente registrado con 2 vehículos asociados |
+| [04_orden_detalle_evidencias_mvc.png](evidencias/04_orden_detalle_evidencias_mvc.png) | Pruebas 2, 3 y 7: Flujo de estados de orden, diagnóstico y evidencia fotográfica |
+| [05_presupuesto_aprobado_mvc.png](evidencias/05_presupuesto_aprobado_mvc.png) | Pruebas 5 y 6: Presupuesto aprobado con cálculo automático de subtotales y total |
+| [06_inventario_alertas_mvc.png](evidencias/06_inventario_alertas_mvc.png) | Prueba 8: Alerta automática de stock mínimo en inventario |
+| [07_fallo_concurrencia_inventario_mvc.png](evidencias/07_fallo_concurrencia_inventario_mvc.png) | Prueba 10 (Escenario A - MVC): Fallo `409 Conflict` por concurrencia optimista en repuesto |
+| [08_fallo_concurrencia_mecanico_mvc.png](evidencias/08_fallo_concurrencia_mecanico_mvc.png) | Prueba 10 (Escenario B - MVC): Fallo `409 Conflict` por asignación concurrente de mecánico |
+| [09_fallo_stock_insuficiente_mvc.png](evidencias/09_fallo_stock_insuficiente_mvc.png) | Prueba 9 (MVC): Rechazo por existencias insuficientes sin stock negativo |
+| [10_reportes_logs_409_correlation_id_mvc.png](evidencias/10_reportes_logs_409_correlation_id_mvc.png) | Prueba 12: Auditoría de errores `409` en SQLite filtrada con `Correlation ID` |
+| [11_swagger_api.png](evidencias/11_swagger_api.png) | Documentación Swagger UI de los endpoints REST de `AutoFix.Api` |
+| [12_pruebas_api_concurrencia_consola.png](evidencias/12_pruebas_api_concurrencia_consola.png) | Pruebas 4, 9, 10 (Escenarios A y B simultáneos) y 11 verificadas contra la API |
