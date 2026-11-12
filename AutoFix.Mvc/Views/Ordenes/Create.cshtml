@@ -1,0 +1,58 @@
+@model OrdenCreateVm
+@{
+    ViewData["Title"] = "Nueva Orden";
+    var clientes = ViewBag.Clientes as List<ClienteVm> ?? [];
+    var vehiculos = ViewBag.Vehiculos as List<VehiculoVm> ?? [];
+}
+
+<h2 class="mb-3">Nueva Orden de Reparación</h2>
+<div class="card border-0 shadow-sm p-4 col-md-7">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="ClienteId" class="form-label">Cliente</label>
+            <select asp-for="ClienteId" id="ClienteSelect" class="form-select" onchange="filtrarVehiculos()">
+                <option value="">-- Seleccione cliente --</option>
+                @foreach (var c in clientes)
+                {
+                    <option value="@c.Id">@c.NombreCompleto (@c.Dui)</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="VehiculoId" class="form-label">Vehículo</label>
+            <select asp-for="VehiculoId" id="VehiculoSelect" class="form-select">
+                <option value="">-- Seleccione vehículo --</option>
+                @foreach (var v in vehiculos)
+                {
+                    <option value="@v.Id" data-cliente="@v.ClienteId">@v.Placa — @v.Marca @v.Modelo (@v.ClienteNombre)</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="FechaEstimadaFinalizacion" class="form-label">Fecha estimada de finalización</label>
+            <input asp-for="FechaEstimadaFinalizacion" type="datetime-local" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="DescripcionProblema" class="form-label">Descripción del problema</label>
+            <textarea asp-for="DescripcionProblema" rows="3" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Crear Orden</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarVehiculos() {
+            const clienteId = document.getElementById('ClienteSelect').value;
+            const vehiculoSelect = document.getElementById('VehiculoSelect');
+            for (const opt of vehiculoSelect.options) {
+                if (!opt.value) continue;
+                const match = !clienteId || opt.getAttribute('data-cliente') === clienteId;
+                opt.style.display = match ? '' : 'none';
+            }
+            vehiculoSelect.value = '';
+        }
+    </script>
+}

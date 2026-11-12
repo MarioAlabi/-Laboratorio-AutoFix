@@ -1,0 +1,57 @@
+@model AsignarMecanicoVm
+@{
+    ViewData["Title"] = "Asignar Mecánico";
+    var ordenes = ViewBag.Ordenes as List<OrdenVm> ?? [];
+    var mecanicos = ViewBag.Mecanicos as List<MecanicoVm> ?? [];
+}
+
+<h2 class="mb-3">Asignar Mecánico a Orden (Concurrencia Optimista)</h2>
+<div class="card border-0 shadow-sm p-4 col-md-7">
+    <form asp-action="Asignar" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="OrdenReparacionId" class="form-label">Orden</label>
+            <select asp-for="OrdenReparacionId" class="form-select">
+                <option value="">-- Seleccione orden --</option>
+                @foreach (var o in ordenes)
+                {
+                    <option value="@o.Id">@o.NumeroOrden — @o.VehiculoPlaca (@o.EstadoNombre)</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="MecanicoId" class="form-label">Mecánico</label>
+            <select asp-for="MecanicoId" id="MecanicoSelect" class="form-select" onchange="syncVersion()">
+                <option value="">-- Seleccione mecánico --</option>
+                @foreach (var m in mecanicos)
+                {
+                    <option value="@m.Id" data-version="@m.Version">@m.NombreCompleto (@m.Especialidad)</option>
+                }
+            </select>
+            <input asp-for="MecanicoVersion" id="MecanicoVersionInput" type="hidden" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaInicio" class="form-label">Inicio</label>
+                <input asp-for="FechaInicio" type="datetime-local" class="form-control" value="@Model.FechaInicio.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaFin" class="form-label">Fin</label>
+                <input asp-for="FechaFin" type="datetime-local" class="form-control" value="@Model.FechaFin.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-warning">Asignar Mecánico</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function syncVersion() {
+            const sel = document.getElementById('MecanicoSelect');
+            const opt = sel.options[sel.selectedIndex];
+            document.getElementById('MecanicoVersionInput').value = opt ? (opt.getAttribute('data-version') || '') : '';
+        }
+        syncVersion();
+    </script>
+}

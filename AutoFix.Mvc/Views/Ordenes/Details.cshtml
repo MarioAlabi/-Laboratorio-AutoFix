@@ -1,0 +1,162 @@
+@model OrdenDetalleVm
+@{
+    ViewData["Title"] = $"Orden {Model.NumeroOrden}";
+    var estados = new (int Id, string Nombre)[]
+    {
+        (1, "1. Recibido"),
+        (2, "2. En diagnóstico"),
+        (3, "3. Presupuestado"),
+        (4, "4. Pendiente de aprobación"),
+        (5, "5. Aprobado"),
+        (6, "6. En reparación"),
+        (7, "7. Finalizado"),
+        (8, "8. Entregado")
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">@Model.NumeroOrden <span class="badge bg-primary fs-6">@Model.EstadoNombre</span></h2>
+        <small class="text-muted">Cliente: <strong>@Model.ClienteNombre</strong> · Vehículo: <strong>@Model.VehiculoPlaca</strong> (@Model.VehiculoDescripcion)</small>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">Volver a Órdenes</a>
+</div>
+
+<div class="card border-0 shadow-sm p-3 mb-4">
+    <div class="small fw-bold text-muted mb-2">Flujo de estados</div>
+    <div class="d-flex flex-wrap gap-1 mb-3">
+        @foreach (var est in estados)
+        {
+            var cls = est.Id == Model.Estado ? "bg-danger" : (est.Id < Model.Estado && Model.Estado != 9 ? "bg-success" : "bg-light text-dark border");
+            <span class="badge @cls p-2">@est.Nombre</span>
+        }
+        @if (Model.Estado == 9)
+        {
+            <span class="badge bg-dark p-2">9. Cancelado</span>
+        }
+    </div>
+
+    @if (Api.ObtenerRol() != "Cliente" && Model.Estado < 8)
+    {
+        <div class="d-flex flex-wrap gap-2">
+            @{
+                int? siguiente = Model.Estado switch
+                {
+                    1 => 2,
+                    2 => 3,
+                    3 => 4,
+                    4 => 5,
+                    5 => 6,
+                    6 => 7,
+                    7 => 8,
+                    _ => null
+                };
+            }
+            @if (siguiente.HasValue)
+            {
+                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" name="nuevoEstado" value="@siguiente.Value" />
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Avanzar al siguiente paso (@estados.First(e => e.Id == siguiente.Value).Nombre)</button>
+                </form>
+            }
+            @if (Api.TienePermiso("Ordenes.Finalizar") && Model.Estado == 6)
+            {
+                <form asp-action="Finalizar" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-sm btn-success">Finalizar Reparación</button>
+                </form>
+            }
+            @if (Api.TienePermiso("Ordenes.Asignar"))
+            {
+                <a asp-controller="Mecanicos" asp-action="Asignar" asp-route-ordenId="@Model.Id" class="btn btn-sm btn-warning">Asignar Mecánico</a>
+            }
+            @if (!Model.TienePresupuesto && Api.TienePermiso("Ordenes.Editar"))
+            {
+                <a asp-controller="Presupuestos" asp-action="Create" asp-route-ordenId="@Model.Id" class="btn btn-sm btn-dark">Crear Presupuesto</a>
+            }
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h5>Diagnóstico e Información</h5>
+            <p class="mb-1"><strong>Ingreso:</strong> @Model.FechaIngreso.ToString("yyyy-MM-dd HH:mm")</p>
+            <p class="mb-3"><strong>Mecánico asignado:</strong> @(Model.MecanicoNombre ?? "Sin asignar")</p>
+
+            @if (Api.TienePermiso("Ordenes.Editar"))
+            {
+                <form asp-action="ActualizarDiagnostico" asp-route-id="@Model.Id" method="post">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Problema reportado</label>
+                        <textarea name="descripcionProblema" class="form-control" rows="2">@Model.DescripcionProblema</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Diagnóstico técnico</label>
+                        <textarea name="diagnostico" class="form-control" rows="3">@Model.Diagnostico</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Fecha estimada de finalización</label>
+                        <input type="datetime-local" name="fechaEstimadaFinalizacion" class="form-control" value="@(Model.FechaEstimadaFinalizacion?.ToString("yyyy-MM-ddTHH:mm"))" />
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-danger">Guardar diagnóstico</button>
+                </form>
+            }
+            else
+            {
+                <p><strong>Problema:</strong> @Model.DescripcionProblema</p>
+                <p class="mb-0"><strong>Diagnóstico:</strong> @(Model.Diagnostico ?? "En evaluación")</p>
+            }
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+            <h5>Presupuesto</h5>
+            @if (Model.Presupuesto is null)
+            {
+                <p class="text-muted mb-0">No se ha generado un presupuesto todavía.</p>
+            }
+            else
+            {
+                <p class="mb-1"><strong>Estado:</strong>
+                    <span class="badge @(Model.Presupuesto.Aprobado ? "bg-success" : "bg-warning text-dark")">
+                        @(Model.Presupuesto.Aprobado ? "Aprobado" : "Pendiente de aprobación")
+                    </span>
+                </p>
+                <p class="mb-1"><strong>Mano de obra:</strong> $@Model.Presupuesto.ManoDeObra.ToString("F2")</p>
+                <p class="mb-2"><strong>Total:</strong> <span class="fs-5 fw-bold text-danger">$@Model.Presupuesto.Total.ToString("F2")</span></p>
+                <a asp-controller="Presupuestos" asp-action="Details" asp-route-id="@Model.Presupuesto.Id" class="btn btn-sm btn-outline-dark">Ver detalle completo</a>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Evidencias Fotográficas (@Model.Evidencias.Count)</h5>
+                @if (Api.ObtenerRol() != "Cliente")
+                {
+                    <a asp-controller="Evidencias" asp-action="Upload" asp-route-ordenId="@Model.Id" class="btn btn-sm btn-danger">+ Subir Foto</a>
+                }
+            </div>
+            @if (!Model.Evidencias.Any())
+            {
+                <p class="text-muted mb-0">Sin fotografías registradas.</p>
+            }
+            else
+            {
+                <div class="row g-2">
+                    @foreach (var ev in Model.Evidencias)
+                    {
+                        <div class="col-6">
+                            <div class="border rounded p-1 bg-light">
+                                <img src="@($"{Api.ApiBaseUrl}/{ev.Ruta}")" class="img-fluid rounded" style="height:130px;width:100%;object-fit:cover;" alt="@ev.Categoria" />
+                                <div class="small fw-bold mt-1">@ev.Categoria</div>
+                                <div class="small text-muted">@ev.Descripcion</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

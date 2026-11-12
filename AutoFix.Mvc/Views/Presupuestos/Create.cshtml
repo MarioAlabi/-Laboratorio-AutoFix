@@ -1,0 +1,85 @@
+@model PresupuestoCreateVm
+@{
+    ViewData["Title"] = "Nuevo Presupuesto";
+    var ordenes = ViewBag.Ordenes as List<OrdenVm> ?? [];
+    var repuestos = ViewBag.Repuestos as List<RepuestoVm> ?? [];
+}
+
+<h2 class="mb-3">Crear Presupuesto</h2>
+<div class="card border-0 shadow-sm p-4">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="OrdenReparacionId" class="form-label">Orden de reparación</label>
+                <select asp-for="OrdenReparacionId" class="form-select">
+                    <option value="">-- Seleccione orden --</option>
+                    @foreach (var o in ordenes)
+                    {
+                        <option value="@o.Id">@o.NumeroOrden — @o.VehiculoPlaca (@o.ClienteNombre)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ManoDeObra" class="form-label">Mano de obra ($)</label>
+                <input asp-for="ManoDeObra" id="ManoDeObraInput" type="number" step="0.01" class="form-control" oninput="calcularTotal()" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Observaciones" class="form-label">Observaciones</label>
+            <textarea asp-for="Observaciones" rows="2" class="form-control"></textarea>
+        </div>
+
+        <h5 class="mt-4">Repuestos a utilizar</h5>
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Repuesto</th>
+                    <th>Precio Unit.</th>
+                    <th>Disponibles</th>
+                    <th style="width:140px;">Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in repuestos)
+                {
+                    <tr>
+                        <td>@r.Codigo — @r.Nombre</td>
+                        <td>$@r.Precio.ToString("F2")</td>
+                        <td><span class="badge @(r.AlertaStockMinimo ? "bg-danger" : "bg-secondary")">@r.Existencias</span></td>
+                        <td>
+                            <input type="hidden" name="repuestoIds" value="@r.Id" />
+                            <input type="number" name="cantidades" value="0" min="0" max="@r.Existencias" data-precio="@r.Precio" class="form-control form-control-sm cant-rep" oninput="calcularTotal()" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="alert alert-light border d-flex justify-content-between align-items-center">
+            <div class="form-check">
+                <input asp-for="EnviarAAprobacion" class="form-check-input" />
+                <label asp-for="EnviarAAprobacion" class="form-check-label">Enviar a Pendiente de aprobación</label>
+            </div>
+            <div class="fs-5 fw-bold">Total estimado: $<span id="TotalSpan">0.00</span></div>
+        </div>
+
+        <button type="submit" class="btn btn-danger">Guardar Presupuesto</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function calcularTotal() {
+            let total = parseFloat(document.getElementById('ManoDeObraInput').value) || 0;
+            document.querySelectorAll('.cant-rep').forEach(inp => {
+                const cant = parseInt(inp.value) || 0;
+                const precio = parseFloat(inp.getAttribute('data-precio')) || 0;
+                total += cant * precio;
+            });
+            document.getElementById('TotalSpan').textContent = total.toFixed(2);
+        }
+        calcularTotal();
+    </script>
+}

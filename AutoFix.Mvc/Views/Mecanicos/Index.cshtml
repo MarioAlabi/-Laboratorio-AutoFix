@@ -1,0 +1,51 @@
+@model List<MecanicoVm>
+@{
+    ViewData["Title"] = "Mecánicos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Mecánicos y Asignaciones</h2>
+    <div class="d-flex gap-2">
+        @if (Api.TienePermiso("Ordenes.Asignar"))
+        {
+            <a asp-action="Asignar" class="btn btn-warning">Asignar Orden a Mecánico</a>
+        }
+        @if (Api.TieneRol("Administrador", "Supervisor"))
+        {
+            <a asp-action="Create" class="btn btn-danger">+ Nuevo Mecánico</a>
+        }
+    </div>
+</div>
+
+<div class="row g-3">
+    @foreach (var m in Model)
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">@m.NombreCompleto</h5>
+                        <span class="badge @(m.Activo ? "bg-success" : "bg-secondary")">@(m.Activo ? "Activo" : "Inactivo")</span>
+                    </div>
+                    <p class="small text-muted mb-2">@m.Especialidad · @m.Telefono · @m.Email</p>
+                    <h6 class="small fw-bold">Horario ocupado (asignaciones activas):</h6>
+                    @if (!m.Asignaciones.Any())
+                    {
+                        <p class="small text-muted mb-0">Disponible (sin asignaciones activas).</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var a in m.Asignaciones)
+                            {
+                                <li class="list-group-item px-0">
+                                    <strong>@a.NumeroOrden</strong>: @a.FechaInicio.ToString("yyyy-MM-dd HH:mm") — @a.FechaFin.ToString("HH:mm")
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
