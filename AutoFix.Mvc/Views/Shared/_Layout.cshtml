@@ -1,47 +1,90 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AutoFix.Mvc</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - AutoFix Taller Automotriz</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AutoFix.Mvc.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="bg-light">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AutoFix.Mvc</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand fw-bold text-danger" asp-controller="Home" asp-action="Index">
+                    AutoFix <span class="text-white fw-normal fs-6">Taller Automotriz</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    @if (Api.EstaAutenticado)
+                    {
+                        var rol = Api.ObtenerRol() ?? "";
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Ordenes" asp-action="Index">Órdenes</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Presupuestos" asp-action="Index">Presupuestos</a></li>
+                            @if (rol != "Cliente")
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Mecanicos" asp-action="Index">Mecánicos</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Movimientos" asp-action="Index">Movimientos</a></li>
+                            }
+                            <li class="nav-item"><a class="nav-link" asp-controller="Evidencias" asp-action="Index">Evidencias</a></li>
+                            @if (Api.TienePermiso("Reportes.Consultar"))
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes y Logs</a></li>
+                            }
+                        </ul>
+                        <div class="d-flex align-items-center gap-2 text-white">
+                            <span class="badge bg-danger">@rol</span>
+                            <small class="text-light">@Api.ObtenerEmail()</small>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-light btn-sm">Salir</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Iniciar sesión</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Registrarse</a></li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container pb-5">
+        @if (TempData["Success"] is string okMsg)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @okMsg
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] is string errMsg)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @errMsg
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - AutoFix.Mvc - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top py-3 bg-white text-muted mt-auto">
+        <div class="container text-center small">
+            &copy; 2026 AutoFix - Sistema de Gestión Automotriz (.NET 10 Web API + MVC + SQLite)
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

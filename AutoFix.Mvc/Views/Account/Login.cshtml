@@ -1,0 +1,53 @@
+@model LoginVm
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0">AutoFix — Iniciar sesión</h4>
+                <small class="text-secondary">Plataforma de Gestión Automotriz</small>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Correo electrónico</label>
+                        <input asp-for="Email" id="EmailInput" class="form-control" placeholder="usuario@autofix.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <input asp-for="Password" id="PasswordInput" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Ingresar</button>
+                </form>
+
+                <hr class="my-4" />
+                <p class="small text-muted mb-2 fw-bold">Usuarios de prueba (clic para autocompletar):</p>
+                <div class="d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="fillUser('admin@autofix.com','Admin123!')">Administrador</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="fillUser('recepcion@autofix.com','Recepcion123!')">Recepcionista</button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="fillUser('mecanico@autofix.com','Mecanico123!')">Mecánico</button>
+                    <button type="button" class="btn btn-outline-success btn-sm" onclick="fillUser('supervisor@autofix.com','Supervisor123!')">Supervisor</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillUser('cliente@autofix.com','Cliente123!')">Cliente</button>
+                </div>
+            </div>
+            <div class="card-footer text-center bg-white">
+                <a asp-action="Register" class="small">¿No tienes cuenta? Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function fillUser(email, pwd) {
+            document.getElementById('EmailInput').value = email;
+            document.getElementById('PasswordInput').value = pwd;
+        }
+    </script>
+}

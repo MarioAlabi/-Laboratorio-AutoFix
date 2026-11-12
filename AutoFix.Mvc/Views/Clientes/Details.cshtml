@@ -1,0 +1,45 @@
+@model ClienteVm
+@{
+    ViewData["Title"] = "Detalle de Cliente";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@Model.NombreCompleto</h2>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <div class="row">
+        <div class="col-md-4"><strong>DUI:</strong> @Model.Dui</div>
+        <div class="col-md-4"><strong>Teléfono:</strong> @Model.Telefono</div>
+        <div class="col-md-4"><strong>Correo:</strong> @Model.CorreoElectronico</div>
+        <div class="col-md-12 mt-2"><strong>Dirección:</strong> @Model.Direccion</div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h4>Vehículos registrados (@Model.Vehiculos.Count)</h4>
+    @if (Api.TieneRol("Administrador", "Recepcionista"))
+    {
+        <a asp-controller="Vehiculos" asp-action="Create" asp-route-clienteId="@Model.Id" class="btn btn-sm btn-danger">+ Agregar Vehículo</a>
+    }
+</div>
+
+<div class="card border-0 shadow-sm">
+    <table class="table mb-0">
+        <thead>
+            <tr><th>Placa</th><th>Vehículo</th><th>Año / Color</th><th>Chasis</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model.Vehiculos)
+            {
+                <tr>
+                    <td class="fw-bold">@v.Placa</td>
+                    <td>@v.Marca @v.Modelo</td>
+                    <td>@v.Anio - @v.Color</td>
+                    <td>@v.NumeroChasis</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

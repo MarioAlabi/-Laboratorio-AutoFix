@@ -1,0 +1,45 @@
+@model List<VehiculoVm>
+@{
+    ViewData["Title"] = "Vehículos";
+    var puedeEditar = Api.TieneRol("Administrador", "Recepcionista");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Vehículos</h2>
+    @if (puedeEditar)
+    {
+        <a asp-action="Create" class="btn btn-danger">+ Nuevo Vehículo</a>
+    }
+</div>
+
+<div class="row g-3">
+    @foreach (var v in Model)
+    {
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                @if (!string.IsNullOrEmpty(v.FotografiaRuta))
+                {
+                    <img src="@($"{Api.ApiBaseUrl}/{v.FotografiaRuta}")" class="card-img-top" style="height:180px;object-fit:cover;" alt="@v.Placa" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@v.Placa — @v.Marca @v.Modelo</h5>
+                    <p class="card-text small mb-1"><strong>Propietario:</strong> @v.ClienteNombre</p>
+                    <p class="card-text small mb-1"><strong>Año / Color:</strong> @v.Anio · @v.Color</p>
+                    <p class="card-text small text-muted mb-0"><strong>Chasis:</strong> @v.NumeroChasis</p>
+                </div>
+                @if (puedeEditar)
+                {
+                    <div class="card-footer bg-white d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-outline-secondary">Editar / Foto</a>
+                        @if (Api.TieneRol("Administrador"))
+                        {
+                            <form asp-action="Delete" asp-route-id="@v.Id" method="post" onsubmit="return confirm('¿Eliminar vehículo?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

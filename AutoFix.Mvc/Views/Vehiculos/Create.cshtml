@@ -1,0 +1,56 @@
+@model VehiculoVm
+@{
+    ViewData["Title"] = "Nuevo Vehículo";
+    var clientes = ViewBag.Clientes as List<ClienteVm> ?? [];
+}
+
+<h2 class="mb-3">Registrar Vehículo</h2>
+<div class="card border-0 shadow-sm p-4 col-md-7">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="ClienteId" class="form-label">Cliente propietario</label>
+            <select asp-for="ClienteId" class="form-select">
+                <option value="">-- Seleccione cliente --</option>
+                @foreach (var c in clientes)
+                {
+                    <option value="@c.Id">@c.NombreCompleto (@c.Dui)</option>
+                }
+            </select>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="Placa" class="form-label">Placa</label>
+                <input asp-for="Placa" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Marca" class="form-label">Marca</label>
+                <input asp-for="Marca" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Modelo" class="form-label">Modelo</label>
+                <input asp-for="Modelo" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="Anio" class="form-label">Año</label>
+                <input asp-for="Anio" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Color" class="form-label">Color</label>
+                <input asp-for="Color" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="NumeroChasis" class="form-label">Número de chasis</label>
+                <input asp-for="NumeroChasis" class="form-control" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fotografía (JPG/PNG máx. 5 MB)</label>
+            <input type="file" name="foto" class="form-control" accept=".jpg,.jpeg,.png" />
+        </div>
+        <button type="submit" class="btn btn-danger">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

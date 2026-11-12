@@ -1,0 +1,35 @@
+@model ClienteVm
+@{
+    ViewData["Title"] = "Nuevo Cliente";
+}
+
+<h2 class="mb-3">Registrar Cliente</h2>
+<div class="card border-0 shadow-sm p-4 col-md-7">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="NombreCompleto" class="form-label">Nombre completo</label>
+            <input asp-for="NombreCompleto" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Dui" class="form-label">DUI / Identificación</label>
+                <input asp-for="Dui" class="form-control" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Telefono" class="form-label">Teléfono</label>
+                <input asp-for="Telefono" class="form-control" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CorreoElectronico" class="form-label">Correo electrónico</label>
+            <input asp-for="CorreoElectronico" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Direccion" class="form-label">Dirección</label>
+            <input asp-for="Direccion" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-danger">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

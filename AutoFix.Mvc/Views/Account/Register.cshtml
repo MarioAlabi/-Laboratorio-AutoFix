@@ -1,0 +1,42 @@
+@model RegisterVm
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0">Crear cuenta en AutoFix</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="NombreCompleto" class="form-label">Nombre completo</label>
+                        <input asp-for="NombreCompleto" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Correo electrónico</label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña (mín. 6 caracteres)</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Rol" class="form-label">Rol</label>
+                        <select asp-for="Rol" class="form-select">
+                            <option value="Cliente">Cliente</option>
+                            <option value="Recepcionista">Recepcionista</option>
+                            <option value="Mecánico">Mecánico</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Administrador">Administrador</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

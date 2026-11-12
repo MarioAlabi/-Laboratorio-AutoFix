@@ -1,8 +1,105 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model DashboardVm
+@{
+    ViewData["Title"] = "Dashboard";
+    var rol = Api.ObtenerRol() ?? "";
+    var claims = Api.ObtenerClaims();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Dashboard del Taller</h2>
+        <small class="text-muted">Sesión activa: <strong>@Api.ObtenerNombre()</strong> (@rol)</small>
+    </div>
+    <div>
+        @if (Api.TienePermiso("Ordenes.Crear"))
+        {
+            <a asp-controller="Ordenes" asp-action="Create" class="btn btn-danger">+ Nueva Orden</a>
+        }
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white">
+            <div class="card-body">
+                <div class="text-muted small">Órdenes Activas / Total</div>
+                <h3 class="mt-1 mb-0 text-primary">@Model.OrdenesActivas / @Model.TotalOrdenes</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white">
+            <div class="card-body">
+                <div class="text-muted small">Clientes</div>
+                <h3 class="mt-1 mb-0 text-dark">@Model.TotalClientes</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white">
+            <div class="card-body">
+                <div class="text-muted small">Vehículos</div>
+                <h3 class="mt-1 mb-0 text-success">@Model.TotalVehiculos</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-white">
+            <div class="card-body">
+                <div class="text-muted small">Alertas Stock Mínimo</div>
+                <h3 class="mt-1 mb-0 @(Model.AlertasStockMinimo > 0 ? "text-danger" : "text-secondary")">@Model.AlertasStockMinimo</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold">Órdenes por Estado</div>
+            <div class="card-body">
+                @if (!Model.OrdenesPorEstado.Any())
+                {
+                    <p class="text-muted mb-0">No hay órdenes registradas aún.</p>
+                }
+                else
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr><th>Estado</th><th class="text-end">Cantidad</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrdenesPorEstado)
+                            {
+                                <tr>
+                                    <td>@item.EstadoNombre</td>
+                                    <td class="text-end"><span class="badge bg-secondary">@item.Cantidad</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-bold">Permisos (Claims JWT)</div>
+            <div class="card-body">
+                @if (!claims.Any())
+                {
+                    <p class="text-muted small mb-0">Rol de solo lectura sobre sus propios vehículos, órdenes y presupuestos.</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach (var c in claims)
+                        {
+                            <span class="badge bg-dark">@c</span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
