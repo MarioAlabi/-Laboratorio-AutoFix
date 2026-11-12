@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AutoFixDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<ImagenStorageService>();
 
 var jwtKey = JwtService.ObtenerClave(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
