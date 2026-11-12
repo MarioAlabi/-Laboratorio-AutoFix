@@ -16,6 +16,7 @@ builder.Services.AddDbContext<AutoFixDbContext>(opt =>
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<ImagenStorageService>();
 builder.Services.AddScoped<InventarioService>();
+builder.Services.AddScoped<MecanicosService>();
 
 var jwtKey = JwtService.ObtenerClave(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

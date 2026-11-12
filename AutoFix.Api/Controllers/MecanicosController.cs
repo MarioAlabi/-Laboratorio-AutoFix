@@ -2,6 +2,7 @@ using AutoFix.Api.Data;
 using AutoFix.Api.DTOs;
 using AutoFix.Api.Exceptions;
 using AutoFix.Api.Models;
+using AutoFix.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +15,12 @@ namespace AutoFix.Api.Controllers;
 public class MecanicosController : ControllerBase
 {
     private readonly AutoFixDbContext _db;
+    private readonly MecanicosService _mecanicosService;
 
-    public MecanicosController(AutoFixDbContext db)
+    public MecanicosController(AutoFixDbContext db, MecanicosService mecanicosService)
     {
         _db = db;
+        _mecanicosService = mecanicosService;
     }
 
     [HttpGet]
@@ -143,5 +146,21 @@ public class MecanicosController : ControllerBase
             Activo = mecanico.Activo,
             Version = mecanico.Version
         });
+    }
+
+    [HttpPost("asignar")]
+    [Authorize(Policy = "PuedeAsignar")]
+    public async Task<ActionResult<AsignacionResumenDto>> Asignar(AsignarMecanicoRequestDto dto)
+    {
+        var asignacion = await _mecanicosService.AsignarMecanicoAsync(dto);
+        return Ok(asignacion);
+    }
+
+    [HttpPost("/api/ordenes/{ordenId:int}/asignar")]
+    [Authorize(Policy = "PuedeAsignar")]
+    public Task<ActionResult<AsignacionResumenDto>> AsignarEnOrden(int ordenId, AsignarMecanicoRequestDto dto)
+    {
+        dto.OrdenReparacionId = ordenId;
+        return Asignar(dto);
     }
 }
