@@ -28,10 +28,10 @@
                         <span class="badge @(m.Activo ? "bg-success" : "bg-secondary")">@(m.Activo ? "Activo" : "Inactivo")</span>
                     </div>
                     <p class="small text-muted mb-2">@m.Especialidad · @m.Telefono · @m.Email</p>
-                    <h6 class="small fw-bold">Horario ocupado (asignaciones activas):</h6>
+                    <h6 class="small fw-bold">Asignaciones activas:</h6>
                     @if (!m.Asignaciones.Any())
                     {
-                        <p class="small text-muted mb-0">Disponible (sin asignaciones activas).</p>
+                        <p class="small text-muted mb-0">Disponible.</p>
                     }
                     else
                     {

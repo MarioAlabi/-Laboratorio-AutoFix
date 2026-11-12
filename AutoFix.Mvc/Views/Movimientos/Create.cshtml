@@ -12,10 +12,10 @@
         <div class="mb-3">
             <label asp-for="Tipo" class="form-label">Tipo de movimiento</label>
             <select asp-for="Tipo" class="form-select">
-                <option value="Salida">Salida (Usar en reparación)</option>
+                <option value="Salida">Salida</option>
                 @if (Api.TienePermiso("Inventario.Gestionar"))
                 {
-                    <option value="Entrada">Entrada (Ingreso a bodega)</option>
+                    <option value="Entrada">Entrada</option>
                 }
             </select>
         </div>
@@ -36,7 +36,7 @@
                 <input asp-for="Cantidad" type="number" min="1" class="form-control" />
             </div>
             <div class="col-md-6 mb-3">
-                <label asp-for="OrdenReparacionId" class="form-label">Orden (opcional en salida)</label>
+                <label asp-for="OrdenReparacionId" class="form-label">Orden asociada</label>
                 <select asp-for="OrdenReparacionId" class="form-select">
                     <option value="">-- Sin orden específica --</option>
                     @foreach (var o in ordenes)

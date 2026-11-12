@@ -5,7 +5,7 @@
     var mecanicos = ViewBag.Mecanicos as List<MecanicoVm> ?? [];
 }
 
-<h2 class="mb-3">Asignar Mecánico a Orden (Concurrencia Optimista)</h2>
+<h2 class="mb-3">Asignar Mecánico a Orden</h2>
 <div class="card border-0 shadow-sm p-4 col-md-7">
     <form asp-action="Asignar" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>

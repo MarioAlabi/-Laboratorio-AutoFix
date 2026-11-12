@@ -2,13 +2,12 @@
 @{
     ViewData["Title"] = "Dashboard";
     var rol = Api.ObtenerRol() ?? "";
-    var claims = Api.ObtenerClaims();
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Dashboard del Taller</h2>
-        <small class="text-muted">Sesión activa: <strong>@Api.ObtenerNombre()</strong> (@rol)</small>
+        <small class="text-muted">Sesión activa: <strong>@Api.ObtenerNombre()</strong> — @rol</small>
     </div>
     <div>
         @if (Api.TienePermiso("Ordenes.Crear"))
@@ -54,7 +53,7 @@
 </div>
 
 <div class="row g-4">
-    <div class="col-md-7">
+    <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-bold">Órdenes por Estado</div>
             <div class="card-body">
@@ -78,26 +77,6 @@
                             }
                         </tbody>
                     </table>
-                }
-            </div>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-bold">Permisos (Claims JWT)</div>
-            <div class="card-body">
-                @if (!claims.Any())
-                {
-                    <p class="text-muted small mb-0">Rol de solo lectura sobre sus propios vehículos, órdenes y presupuestos.</p>
-                }
-                else
-                {
-                    <div class="d-flex flex-wrap gap-1">
-                        @foreach (var c in claims)
-                        {
-                            <span class="badge bg-dark">@c</span>
-                        }
-                    </div>
                 }
             </div>
         </div>
