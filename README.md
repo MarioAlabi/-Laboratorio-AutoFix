@@ -107,7 +107,7 @@ Los resultados detallados de ejecución de las **12 pruebas obligatorias** (incl
 | Evidencia | Caso demostrado |
 | :--- | :--- |
 | [01_login_mvc.png](evidencias/01_login_mvc.png) | Inicio de sesión JWT en MVC con usuarios de prueba |
-| [02_dashboard_mvc.png](evidencias/02_dashboard_mvc.png) | Dashboard operativo con resumen de órdenes, alertas y claims JWT |
+| [02_dashboard_mvc.png](evidencias/02_dashboard_mvc.png) | Dashboard operativo con resumen de órdenes y alertas de stock |
 | [03_clientes_2_vehiculos_mvc.png](evidencias/03_clientes_2_vehiculos_mvc.png) | Prueba 1: Cliente registrado con 2 vehículos asociados |
 | [04_orden_detalle_evidencias_mvc.png](evidencias/04_orden_detalle_evidencias_mvc.png) | Pruebas 2, 3 y 7: Flujo de estados de orden, diagnóstico y evidencia fotográfica |
 | [05_presupuesto_aprobado_mvc.png](evidencias/05_presupuesto_aprobado_mvc.png) | Pruebas 5 y 6: Presupuesto aprobado con cálculo automático de subtotales y total |
