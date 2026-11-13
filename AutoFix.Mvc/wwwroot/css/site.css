@@ -8,17 +8,44 @@ html {
   }
 }
 
+html, body {
+  min-height: 100%;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.autofix-sidebar {
+  width: 250px;
+  min-width: 250px;
 }
 
-body {
-  margin-bottom: 60px;
+@media (min-width: 992px) {
+  .autofix-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+}
+
+.autofix-sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.autofix-sidebar .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.autofix-sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: #dc3545;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

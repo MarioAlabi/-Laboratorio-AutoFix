@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -7,83 +7,155 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-light">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-danger" asp-controller="Home" asp-action="Index">
-                    AutoFix <span class="text-white fw-normal fs-6">Taller Automotriz</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    @if (Api.EstaAutenticado)
-                    {
-                        var rol = Api.ObtenerRol() ?? "";
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Ordenes" asp-action="Index">Órdenes</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Presupuestos" asp-action="Index">Presupuestos</a></li>
-                            @if (rol != "Cliente")
-                            {
-                                <li class="nav-item"><a class="nav-link" asp-controller="Mecanicos" asp-action="Index">Mecánicos</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Movimientos" asp-action="Index">Movimientos</a></li>
-                            }
-                            <li class="nav-item"><a class="nav-link" asp-controller="Evidencias" asp-action="Index">Evidencias</a></li>
-                            @if (Api.TienePermiso("Reportes.Consultar"))
-                            {
-                                <li class="nav-item"><a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes y Logs</a></li>
-                            }
-                        </ul>
-                        <div class="d-flex align-items-center gap-2 text-white">
-                            <span class="badge bg-danger">@rol</span>
-                            <small class="text-light">@Api.ObtenerEmail()</small>
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-light btn-sm">Salir</button>
-                            </form>
-                        </div>
-                    }
-                    else
-                    {
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Iniciar sesión</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Registrarse</a></li>
-                        </ul>
-                    }
+<body class="bg-light d-flex flex-column min-vh-100">
+    @if (Api.EstaAutenticado)
+    {
+        var rol = Api.ObtenerRol() ?? "";
+        var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        <header class="d-lg-none navbar navbar-dark bg-dark px-3 shadow-sm">
+            <a class="navbar-brand fw-bold text-danger mb-0" asp-controller="Home" asp-action="Index">
+                AutoFix <span class="text-white fw-normal fs-6">Taller Automotriz</span>
+            </a>
+            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                Menú
+            </button>
+        </header>
+
+        <div class="d-flex flex-grow-1">
+            <aside id="sidebarMenu" tabindex="-1" class="offcanvas-lg offcanvas-start autofix-sidebar bg-dark text-white d-flex flex-column p-3 shadow-sm">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <a class="text-decoration-none fw-bold fs-5 text-danger" asp-controller="Home" asp-action="Index">
+                        AutoFix <span class="text-white fw-normal fs-6 d-block">Taller Automotriz</span>
+                    </a>
+                    <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Cerrar"></button>
                 </div>
-            </div>
-        </nav>
-    </header>
 
-    <div class="container pb-5">
-        @if (TempData["Success"] is string okMsg)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @okMsg
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        @if (TempData["Error"] is string errMsg)
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @errMsg
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-        <main role="main">
-            @RenderBody()
-        </main>
-    </div>
+                <hr class="border-secondary my-3" />
 
-    <footer class="border-top py-3 bg-white text-muted mt-auto">
-        <div class="container text-center small">
-            &copy; 2026 AutoFix - Sistema de Gestión Automotriz
+                <ul class="nav nav-pills flex-column gap-1 mb-auto">
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Clientes" ? "active" : "")" asp-controller="Clientes" asp-action="Index">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Vehiculos" ? "active" : "")" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Ordenes" ? "active" : "")" asp-controller="Ordenes" asp-action="Index">Órdenes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Presupuestos" ? "active" : "")" asp-controller="Presupuestos" asp-action="Index">Presupuestos</a>
+                    </li>
+                    @if (rol != "Cliente")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentCtrl == "Mecanicos" ? "active" : "")" asp-controller="Mecanicos" asp-action="Index">Mecánicos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentCtrl == "Inventario" ? "active" : "")" asp-controller="Inventario" asp-action="Index">Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentCtrl == "Movimientos" ? "active" : "")" asp-controller="Movimientos" asp-action="Index">Movimientos</a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link @(currentCtrl == "Evidencias" ? "active" : "")" asp-controller="Evidencias" asp-action="Index">Evidencias</a>
+                    </li>
+                    @if (Api.TienePermiso("Reportes.Consultar"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(currentCtrl == "Reportes" ? "active" : "")" asp-controller="Reportes" asp-action="Index">Reportes y Logs</a>
+                        </li>
+                    }
+                </ul>
+
+                <hr class="border-secondary my-3" />
+
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="badge bg-danger">@rol</span>
+                    </div>
+                    <small class="text-light text-truncate" title="@Api.ObtenerEmail()">@Api.ObtenerEmail()</small>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-outline-light btn-sm w-100">Salir</button>
+                    </form>
+                </div>
+            </aside>
+
+            <div class="flex-grow-1 d-flex flex-column min-w-0">
+                <main role="main" class="flex-grow-1 p-4">
+                    <div class="container-fluid px-0 px-xl-2">
+                        @if (TempData["Success"] is string okMsg)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                @okMsg
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+                        @if (TempData["Error"] is string errMsg)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @errMsg
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+                        @RenderBody()
+                    </div>
+                </main>
+
+                <footer class="border-top py-3 bg-white text-muted mt-auto">
+                    <div class="container-fluid px-4 text-center small">
+                        &copy; 2026 AutoFix - Sistema de Gestión Automotriz
+                    </div>
+                </footer>
+            </div>
         </div>
-    </footer>
+    }
+    else
+    {
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-bold text-danger" asp-controller="Home" asp-action="Index">
+                        AutoFix <span class="text-white fw-normal fs-6">Taller Automotriz</span>
+                    </a>
+                    <ul class="navbar-nav ms-auto flex-row gap-3">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Iniciar sesión</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Registrarse</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <div class="container pb-5 flex-grow-1">
+            @if (TempData["Success"] is string okMsg)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @okMsg
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] is string errMsg)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @errMsg
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="border-top py-3 bg-white text-muted mt-auto">
+            <div class="container text-center small">
+                &copy; 2026 AutoFix - Sistema de Gestión Automotriz
+            </div>
+        </footer>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
