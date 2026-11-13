@@ -34,30 +34,9 @@ public class ClientesController : ControllerBase
             query = query.Where(c => c.Id == clienteId);
         }
 
-        var list = await query.OrderBy(c => c.NombreCompleto).Select(c => new ClienteDto
-        {
-            Id = c.Id,
-            NombreCompleto = c.NombreCompleto,
-            Dui = c.Dui,
-            Telefono = c.Telefono,
-            CorreoElectronico = c.CorreoElectronico,
-            Direccion = c.Direccion,
-            Vehiculos = c.Vehiculos.Select(v => new VehiculoDto
-            {
-                Id = v.Id,
-                Placa = v.Placa,
-                Marca = v.Marca,
-                Modelo = v.Modelo,
-                Anio = v.Anio,
-                Color = v.Color,
-                NumeroChasis = v.NumeroChasis,
-                FotografiaRuta = v.FotografiaRuta,
-                ClienteId = v.ClienteId,
-                ClienteNombre = c.NombreCompleto
-            }).ToList()
-        }).ToListAsync();
+        var clientes = await query.OrderBy(c => c.NombreCompleto).ToListAsync();
 
-        return Ok(list);
+        return Ok(clientes.Select(MapToDto).ToList());
     }
 
     [HttpGet("{id:int}")]
@@ -73,15 +52,20 @@ public class ClientesController : ControllerBase
         var c = await _db.Clientes.Include(x => x.Vehiculos).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new NotFoundException($"No existe el cliente con Id {id}.");
 
-        return Ok(new ClienteDto
-        {
-            Id = c.Id,
-            NombreCompleto = c.NombreCompleto,
-            Dui = c.Dui,
-            Telefono = c.Telefono,
-            CorreoElectronico = c.CorreoElectronico,
-            Direccion = c.Direccion,
-            Vehiculos = c.Vehiculos.Select(v => new VehiculoDto
+        return Ok(MapToDto(c));
+    }
+
+    private static ClienteDto MapToDto(Cliente c) => new()
+    {
+        Id = c.Id,
+        NombreCompleto = c.NombreCompleto,
+        Dui = c.Dui,
+        Telefono = c.Telefono,
+        CorreoElectronico = c.CorreoElectronico,
+        Direccion = c.Direccion,
+        Vehiculos = c.Vehiculos
+            .OrderBy(v => v.Placa)
+            .Select(v => new VehiculoDto
             {
                 Id = v.Id,
                 Placa = v.Placa,
@@ -94,8 +78,7 @@ public class ClientesController : ControllerBase
                 ClienteId = v.ClienteId,
                 ClienteNombre = c.NombreCompleto
             }).ToList()
-        });
-    }
+    };
 
     [HttpPost]
     [Authorize(Roles = $"{RolesSistema.Administrador},{RolesSistema.Recepcionista}")]
